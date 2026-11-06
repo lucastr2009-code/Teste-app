@@ -1,0 +1,804 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>DVN.MULTIMARCAS - Design & Criação Digital</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #05070b;
+      --card: #0b0f17;
+      --cyan: #00e5ff;
+      --cyan-dark: #00b8d4;
+      --blue: #2979ff;
+      --text: #e8f4ff;
+      --muted: #8aa0b8;
+      --border: rgba(0, 229, 255, 0.25);
+      --glow: 0 0 20px rgba(0, 229, 255, 0.35);
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      font-family: 'Inter', system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100dvh;
+      overflow-x: hidden;
+    }
+
+    /* ===== SIDEBAR ===== */
+    .sidebar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 260px;
+      height: 100%;
+      background: linear-gradient(180deg, #0a0e16 0%, #05070b 100%);
+      border-right: 1px solid var(--border);
+      z-index: 1000;
+      transform: translateX(-100%);
+      transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      display: flex;
+      flex-direction: column;
+      padding: 20px 0;
+    }
+
+    .sidebar.open {
+      transform: translateX(0);
+    }
+
+    .sidebar-header {
+      padding: 0 20px 24px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 16px;
+    }
+
+    .sidebar-logo {
+      font-family: 'Orbitron', sans-serif;
+      font-weight: 900;
+      font-size: 1.15rem;
+      letter-spacing: 1px;
+      color: var(--cyan);
+      text-shadow: var(--glow);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .sidebar-logo span {
+      color: #fff;
+    }
+
+    .sidebar-sub {
+      font-size: 0.7rem;
+      color: var(--muted);
+      margin-top: 4px;
+      letter-spacing: 0.5px;
+    }
+
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 14px 20px;
+      color: var(--muted);
+      font-weight: 500;
+      font-size: 0.95rem;
+      cursor: pointer;
+      transition: all 0.2s;
+      border-left: 3px solid transparent;
+      user-select: none;
+    }
+
+    .nav-item:hover {
+      background: rgba(0, 229, 255, 0.06);
+      color: var(--text);
+    }
+
+    .nav-item.active {
+      background: rgba(0, 229, 255, 0.12);
+      color: var(--cyan);
+      border-left-color: var(--cyan);
+    }
+
+    .nav-item svg {
+      width: 22px;
+      height: 22px;
+      flex-shrink: 0;
+    }
+
+    .sidebar-footer {
+      margin-top: auto;
+      padding: 20px;
+      border-top: 1px solid var(--border);
+      text-align: center;
+    }
+
+    .sidebar-footer a {
+      color: var(--cyan);
+      text-decoration: none;
+      font-size: 0.85rem;
+      font-weight: 600;
+    }
+
+    /* ===== OVERLAY ===== */
+    .overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.6);
+      z-index: 900;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s;
+    }
+
+    .overlay.show {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    /* ===== MAIN ===== */
+    .main {
+      min-height: 100dvh;
+      padding-bottom: 40px;
+    }
+
+    /* Top bar */
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 16px;
+      background: rgba(5, 7, 11, 0.92);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .menu-btn {
+      width: 42px;
+      height: 42px;
+      border-radius: 10px;
+      background: rgba(0, 229, 255, 0.1);
+      border: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      color: var(--cyan);
+    }
+
+    .topbar-title {
+      font-family: 'Orbitron', sans-serif;
+      font-weight: 700;
+      font-size: 0.95rem;
+      letter-spacing: 1px;
+      color: var(--cyan);
+    }
+
+    .topbar-ig {
+      font-size: 0.8rem;
+      color: var(--muted);
+      font-weight: 500;
+    }
+
+    /* Pages */
+    .page {
+      display: none;
+      padding: 20px 16px 40px;
+      animation: fadeIn 0.35s ease;
+    }
+
+    .page.active {
+      display: block;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ===== PAGE 1 - HOME ===== */
+    .hero {
+      text-align: center;
+      padding: 30px 10px 20px;
+    }
+
+    .hero-crown {
+      font-size: 2.2rem;
+      margin-bottom: 8px;
+      filter: drop-shadow(0 0 12px rgba(0, 229, 255, 0.6));
+    }
+
+    .hero-logo {
+      font-family: 'Orbitron', sans-serif;
+      font-weight: 900;
+      font-size: 1.8rem;
+      letter-spacing: 1px;
+      line-height: 1.1;
+      margin-bottom: 6px;
+    }
+
+    .hero-logo .dvn {
+      color: #fff;
+      text-shadow: 0 0 20px rgba(255,255,255,0.3);
+    }
+
+    .hero-logo .multi {
+      color: var(--cyan);
+      text-shadow: var(--glow);
+    }
+
+    .hero-sub {
+      font-size: 0.75rem;
+      letter-spacing: 3px;
+      color: var(--muted);
+      text-transform: uppercase;
+      margin-bottom: 18px;
+    }
+
+    .hero-tag {
+      display: inline-block;
+      background: linear-gradient(90deg, var(--cyan), var(--blue));
+      color: #000;
+      font-weight: 700;
+      font-size: 0.85rem;
+      padding: 8px 20px;
+      border-radius: 30px;
+      letter-spacing: 1px;
+      margin-bottom: 28px;
+      box-shadow: 0 0 25px rgba(0, 229, 255, 0.4);
+    }
+
+    .services-grid {
+      display: grid;
+      gap: 14px;
+      margin-top: 10px;
+    }
+
+    .service-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 18px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      cursor: pointer;
+      transition: all 0.25s;
+    }
+
+    .service-card:hover, .service-card:active {
+      border-color: var(--cyan);
+      box-shadow: var(--glow);
+      transform: translateY(-2px);
+    }
+
+    .service-icon {
+      width: 52px;
+      height: 52px;
+      border-radius: 14px;
+      background: rgba(0, 229, 255, 0.12);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+      flex-shrink: 0;
+    }
+
+    .service-info h3 {
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--cyan);
+      margin-bottom: 3px;
+    }
+
+    .service-info p {
+      font-size: 0.8rem;
+      color: var(--muted);
+    }
+
+    .ig-badge {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      margin-top: 28px;
+      padding: 12px;
+      background: rgba(0, 229, 255, 0.08);
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      font-size: 0.9rem;
+      color: var(--cyan);
+      font-weight: 600;
+    }
+
+    /* ===== COMMON PAGE HEADER ===== */
+    .page-header {
+      text-align: center;
+      margin-bottom: 22px;
+    }
+
+    .page-header .icon-big {
+      font-size: 2.4rem;
+      margin-bottom: 10px;
+      filter: drop-shadow(0 0 10px rgba(0, 229, 255, 0.5));
+    }
+
+    .page-header h1 {
+      font-family: 'Orbitron', sans-serif;
+      font-weight: 800;
+      font-size: 1.45rem;
+      color: var(--cyan);
+      letter-spacing: 1px;
+      text-shadow: var(--glow);
+      margin-bottom: 6px;
+    }
+
+    .page-header p {
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+
+    /* Poster image */
+    .poster-img {
+      width: 100%;
+      border-radius: 16px;
+      border: 1px solid var(--border);
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+      margin-bottom: 20px;
+      display: block;
+    }
+
+    /* Info box */
+    .info-box {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 16px;
+      margin-bottom: 18px;
+    }
+
+    .info-box h3 {
+      color: var(--cyan);
+      font-size: 0.95rem;
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .info-box p {
+      font-size: 0.88rem;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+
+    .features {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+
+    .feature {
+      background: rgba(0, 229, 255, 0.06);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px;
+      text-align: center;
+      font-size: 0.82rem;
+      color: var(--text);
+    }
+
+    .feature strong {
+      display: block;
+      color: var(--cyan);
+      font-size: 0.9rem;
+      margin-bottom: 2px;
+    }
+
+    /* ===== CONTACT PAGE ===== */
+    .contact-buttons {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      margin-top: 10px;
+    }
+
+    .btn-contact {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      padding: 16px 20px;
+      border-radius: 14px;
+      font-weight: 700;
+      font-size: 1.05rem;
+      text-decoration: none;
+      transition: all 0.25s;
+      border: none;
+      cursor: pointer;
+    }
+
+    .btn-whatsapp {
+      background: linear-gradient(135deg, #25D366, #128C7E);
+      color: #fff;
+      box-shadow: 0 6px 25px rgba(37, 211, 102, 0.35);
+    }
+
+    .btn-whatsapp:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 30px rgba(37, 211, 102, 0.45);
+    }
+
+    .btn-instagram {
+      background: linear-gradient(135deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888);
+      color: #fff;
+      box-shadow: 0 6px 25px rgba(225, 48, 108, 0.35);
+    }
+
+    .btn-instagram:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 30px rgba(225, 48, 108, 0.45);
+    }
+
+    .contact-info {
+      text-align: center;
+      margin-top: 28px;
+      padding: 18px;
+      background: var(--card);
+      border-radius: 14px;
+      border: 1px solid var(--border);
+    }
+
+    .contact-info p {
+      color: var(--muted);
+      font-size: 0.9rem;
+      margin-bottom: 6px;
+    }
+
+    .contact-info strong {
+      color: var(--cyan);
+      font-size: 1.1rem;
+    }
+
+    .payments {
+      display: flex;
+      justify-content: center;
+      gap: 16px;
+      margin-top: 18px;
+      flex-wrap: wrap;
+    }
+
+    .pay-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.8rem;
+      color: var(--muted);
+    }
+
+    .disclaimer {
+      text-align: center;
+      margin-top: 30px;
+      font-size: 0.75rem;
+      color: #5a6a7a;
+    }
+
+    /* Footer on every page */
+    .page-footer {
+      margin-top: 30px;
+      text-align: center;
+      padding-top: 16px;
+      border-top: 1px solid var(--border);
+    }
+
+    .page-footer a {
+      color: var(--cyan);
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 0.9rem;
+    }
+
+    /* Desktop */
+    @media (min-width: 768px) {
+      .sidebar {
+        transform: translateX(0);
+      }
+      .overlay {
+        display: none !important;
+      }
+      .main {
+        margin-left: 260px;
+      }
+      .menu-btn {
+        display: none;
+      }
+      .page {
+        max-width: 680px;
+        margin: 0 auto;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-logo">
+        <span>👑</span>
+        <div>
+          <div><span class="dvn">DVN</span>.<span class="multi">MULTIMARCAS</span></div>
+          <div class="sidebar-sub">DESIGN & CRIAÇÃO DIGITAL</div>
+        </div>
+      </div>
+    </div>
+
+    <nav>
+      <div class="nav-item active" data-page="1">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+        <span>Início</span>
+      </div>
+      <div class="nav-item" data-page="2">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+        <span>Catálogos & Vitrines</span>
+      </div>
+      <div class="nav-item" data-page="3">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2"/><path d="M7 2v20"/><path d="M21 15V2v0a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3Zm0 0v7"/></svg>
+        <span>Cardápios & Preços</span>
+      </div>
+      <div class="nav-item" data-page="4">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+        <span>Banners & Anúncios</span>
+      </div>
+      <div class="nav-item" data-page="5">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+        <span>Contato</span>
+      </div>
+    </nav>
+
+    <div class="sidebar-footer">
+      <a href="https://instagram.com/dvn.multimarcas" target="_blank">@dvn.multimarcas</a>
+    </div>
+  </aside>
+
+  <div class="overlay" id="overlay"></div>
+
+  <!-- MAIN CONTENT -->
+  <div class="main">
+    <div class="topbar">
+      <button class="menu-btn" id="menuBtn" aria-label="Menu">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+      </button>
+      <div class="topbar-title">DVN.MULTIMARCAS</div>
+      <div class="topbar-ig">@dvn.multimarcas</div>
+    </div>
+
+    <!-- PAGE 1 - INÍCIO -->
+    <section class="page active" id="page1">
+      <div class="hero">
+        <div class="hero-crown">👑</div>
+        <div class="hero-logo">
+          <span class="dvn">DVN</span>.<span class="multi">MULTIMARCAS</span>
+        </div>
+        <div class="hero-sub">Design & Criação Digital</div>
+        <div class="hero-tag">DIVULGAÇÃO E VENDAS</div>
+      </div>
+
+      <div class="services-grid">
+        <div class="service-card" onclick="goToPage(2)">
+          <div class="service-icon">🛒</div>
+          <div class="service-info">
+            <h3>Catálogos e Vitrines</h3>
+            <p>Apresente produtos e serviços</p>
+          </div>
+        </div>
+        <div class="service-card" onclick="goToPage(3)">
+          <div class="service-icon">🍽️</div>
+          <div class="service-info">
+            <h3>Cardápios e Tabelas</h3>
+            <p>Informação clara para seus clientes</p>
+          </div>
+        </div>
+        <div class="service-card" onclick="goToPage(4)">
+          <div class="service-icon">📢</div>
+          <div class="service-info">
+            <h3>Banners e Anúncios</h3>
+            <p>Artes para impressão e redes sociais</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="ig-badge">
+        📷 Instagram: <a href="https://instagram.com/dvn.multimarcas" target="_blank" style="color:inherit;text-decoration:none">@dvn.multimarcas</a>
+      </div>
+
+      <div class="page-footer">
+        <a href="https://instagram.com/dvn.multimarcas" target="_blank">@dvn.multimarcas</a>
+      </div>
+    </section>
+
+    <!-- PAGE 2 - CATÁLOGOS -->
+    <section class="page" id="page2">
+      <div class="page-header">
+        <div class="icon-big">🛒</div>
+        <h1>CATÁLOGOS E<br>VITRINES DIGITAIS</h1>
+        <p>Apresente produtos e serviços.</p>
+      </div>
+
+      <img src="1000336709.png" alt="Catálogos e Vitrines Digitais" class="poster-img" />
+
+      <div class="info-box">
+        <h3>✨ O que oferecemos</h3>
+        <p>Catálogos digitais profissionais e vitrines interativas para você mostrar seus produtos de forma moderna e atrativa. Ideal para lojas, revendas e serviços.</p>
+      </div>
+
+      <div class="features">
+        <div class="feature"><strong>📱 Mobile</strong>Responsivo</div>
+        <div class="feature"><strong>🖼️ Visual</strong>Profissional</div>
+        <div class="feature"><strong>🚗 Multimarcas</strong>Veículos & mais</div>
+        <div class="feature"><strong>⚡ Rápido</strong>Entrega ágil</div>
+      </div>
+
+      <div class="page-footer">
+        <a href="https://instagram.com/dvn.multimarcas" target="_blank">@dvn.multimarcas</a>
+      </div>
+    </section>
+
+    <!-- PAGE 3 - CARDÁPIOS -->
+    <section class="page" id="page3">
+      <div class="page-header">
+        <div class="icon-big">🍽️</div>
+        <h1>CARDÁPIOS E<br>TABELAS DE PREÇOS</h1>
+        <p>Informação clara para seus clientes.</p>
+      </div>
+
+      <img src="1000336707.png" alt="Cardápios e Tabelas de Preços" class="poster-img" />
+
+      <div class="info-box">
+        <h3>✨ O que oferecemos</h3>
+        <p>Cardápios digitais e tabelas de preços com design impactante. Perfeito para lanchonetes, restaurantes, bares e qualquer negócio que precise comunicar valores de forma clara e bonita.</p>
+      </div>
+
+      <div class="features">
+        <div class="feature"><strong>📋 Limpo</strong>Fácil de ler</div>
+        <div class="feature"><strong>💰 Preços</strong>Destacados</div>
+        <div class="feature"><strong>🍔 Food</strong>Visual atrativo</div>
+        <div class="feature"><strong>🖨️ Print</strong>ou Digital</div>
+      </div>
+
+      <div class="page-footer">
+        <a href="https://instagram.com/dvn.multimarcas" target="_blank">@dvn.multimarcas</a>
+      </div>
+    </section>
+
+    <!-- PAGE 4 - BANNERS -->
+    <section class="page" id="page4">
+      <div class="page-header">
+        <div class="icon-big">📢</div>
+        <h1>BANNERS E<br>ANÚNCIOS</h1>
+        <p>Artes para impressão e redes sociais.</p>
+      </div>
+
+      <img src="1000336708.png" alt="Banners e Anúncios" class="poster-img" />
+
+      <div class="info-box">
+        <h3>✨ O que oferecemos</h3>
+        <p>Banners, posts e anúncios com qualidade profissional para você divulgar seus produtos e serviços nas redes sociais ou em materiais impressos.</p>
+      </div>
+
+      <div class="features">
+        <div class="feature"><strong>📱 Stories</strong>& Feed</div>
+        <div class="feature"><strong>🖼️ Banner</strong>Impresso</div>
+        <div class="feature"><strong>🚗 Autos</strong>e Serviços</div>
+        <div class="feature"><strong>✨ Neon</strong>Visual forte</div>
+      </div>
+
+      <div class="page-footer">
+        <a href="https://instagram.com/dvn.multimarcas" target="_blank">@dvn.multimarcas</a>
+      </div>
+    </section>
+
+    <!-- PAGE 5 - CONTATO -->
+    <section class="page" id="page5">
+      <div class="page-header">
+        <div class="icon-big">💬</div>
+        <h1>ENVIE SUA IDEIA</h1>
+        <p>Fale conosco pelo WhatsApp ou Instagram</p>
+      </div>
+
+      <div class="contact-buttons">
+        <a href="https://wa.me/5524978343117?text=Ol%C3%A1!%20Vim%20pelo%20app%20de%20teste%20da%20DVN.MULTIMARCAS" class="btn-contact btn-whatsapp" target="_blank">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.435 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+          WhatsApp (24) 97834-3117
+        </a>
+
+        <a href="https://instagram.com/dvn.multimarcas" class="btn-contact btn-instagram" target="_blank">
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg>
+          Instagram @dvn.multimarcas
+        </a>
+      </div>
+
+      <div class="contact-info">
+        <p>WhatsApp</p>
+        <strong>+55 (24) 97834-3117</strong>
+        <p style="margin-top:12px">Instagram</p>
+        <strong>@dvn.multimarcas</strong>
+      </div>
+
+      <div class="payments">
+        <div class="pay-item">💳 Débito</div>
+        <div class="pay-item">💳 Crédito</div>
+        <div class="pay-item">◆ PIX</div>
+      </div>
+
+      <div class="disclaimer">
+        Valores simbólicos • Apenas hobby<br>
+        App de teste – DVN.MULTIMARCAS
+      </div>
+
+      <div class="page-footer">
+        <a href="https://instagram.com/dvn.multimarcas" target="_blank">@dvn.multimarcas</a>
+      </div>
+    </section>
+  </div>
+
+  <script>
+    const sidebar = document.getElementById('sidebar');
+    const overlay = document.getElementById('overlay');
+    const menuBtn = document.getElementById('menuBtn');
+    const navItems = document.querySelectorAll('.nav-item');
+    const pages = document.querySelectorAll('.page');
+
+    function openSidebar() {
+      sidebar.classList.add('open');
+      overlay.classList.add('show');
+    }
+
+    function closeSidebar() {
+      sidebar.classList.remove('open');
+      overlay.classList.remove('show');
+    }
+
+    menuBtn.addEventListener('click', openSidebar);
+    overlay.addEventListener('click', closeSidebar);
+
+    function goToPage(num) {
+      // Update nav
+      navItems.forEach(item => {
+        item.classList.toggle('active', item.dataset.page == num);
+      });
+      // Update pages
+      pages.forEach(page => {
+        page.classList.toggle('active', page.id === 'page' + num);
+      });
+      // Close sidebar on mobile
+      closeSidebar();
+      // Scroll top
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    navItems.forEach(item => {
+      item.addEventListener('click', () => {
+        goToPage(item.dataset.page);
+      });
+    });
+
+    // Make goToPage global for service cards
+    window.goToPage = goToPage;
+  </script>
+</body>
+</html>
